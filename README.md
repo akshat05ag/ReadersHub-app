@@ -2,7 +2,7 @@
 
 ## Project info
 
-**URL**: 
+**URL**: https://readers-hub-app.vercel.app/
 
 ## How can I edit this code?
 
