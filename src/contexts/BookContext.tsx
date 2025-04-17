@@ -1,4 +1,3 @@
-
 import { createContext, useState, useContext, ReactNode } from "react";
 import { Book } from "@/types";
 import { useToast } from "@/components/ui/use-toast";
@@ -6,10 +5,11 @@ import { v4 as uuidv4 } from "uuid";
 
 interface BookContextType {
   books: Book[];
-  addBook: (book: Omit<Book, "id" | "isRented">) => void;
+  addBook: (book: Omit<Book, "id" | "isRented" | "rating">) => void;
   editBook: (id: string, book: Partial<Omit<Book, "id">>) => void;
   deleteBook: (id: string) => void;
   toggleRentStatus: (bookId: string) => void;
+  updateBookRating: (bookId: string, rating: number) => void;
   filteredBooks: (query: string, category: string) => Book[];
 }
 
@@ -27,6 +27,7 @@ export function BookProvider({ children }: { children: ReactNode }) {
       ownerId: "1",
       ownerName: "Jane Austen",
       isRented: false,
+      rating: 4,
       coverImage: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=800"
     },
     {
@@ -39,6 +40,7 @@ export function BookProvider({ children }: { children: ReactNode }) {
       ownerId: "1",
       ownerName: "Jane Austen",
       isRented: true,
+      rating: 3,
       coverImage: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&q=80&w=800"
     },
     {
@@ -51,6 +53,7 @@ export function BookProvider({ children }: { children: ReactNode }) {
       ownerId: "1",
       ownerName: "Jane Austen",
       isRented: false,
+      rating: 5,
       coverImage: "https://images.unsplash.com/photo-1515826904570-5c1d89e50a6d?auto=format&fit=crop&q=80&w=800"
     },
     {
@@ -63,6 +66,7 @@ export function BookProvider({ children }: { children: ReactNode }) {
       ownerId: "2",
       ownerName: "John Smith",
       isRented: false,
+      rating: 4,
       coverImage: "https://images.unsplash.com/photo-1541963463532-d68292c34b19?auto=format&fit=crop&q=80&w=800"
     },
     {
@@ -75,6 +79,7 @@ export function BookProvider({ children }: { children: ReactNode }) {
       ownerId: "3",
       ownerName: "Mary Johnson",
       isRented: true,
+      rating: 2,
       coverImage: "https://images.unsplash.com/photo-1531928351158-2f736078e0a1?auto=format&fit=crop&q=80&w=800"
     },
     {
@@ -87,6 +92,7 @@ export function BookProvider({ children }: { children: ReactNode }) {
       ownerId: "4",
       ownerName: "David Wilson",
       isRented: false,
+      rating: 5,
       coverImage: "https://images.unsplash.com/photo-1618666012174-83b441c0bc76?auto=format&fit=crop&q=80&w=800"
     },
     {
@@ -99,6 +105,7 @@ export function BookProvider({ children }: { children: ReactNode }) {
       ownerId: "4",
       ownerName: "David Wilson",
       isRented: false,
+      rating: 4,
       coverImage: "https://images.unsplash.com/photo-1629992101753-56d196c8aabb?auto=format&fit=crop&q=80&w=800"
     },
     {
@@ -111,6 +118,7 @@ export function BookProvider({ children }: { children: ReactNode }) {
       ownerId: "5",
       ownerName: "Sarah Brown",
       isRented: true,
+      rating: 3,
       coverImage: "https://images.unsplash.com/photo-1589998059171-988d887df646?auto=format&fit=crop&q=80&w=800"
     },
     {
@@ -123,6 +131,7 @@ export function BookProvider({ children }: { children: ReactNode }) {
       ownerId: "1",
       ownerName: "Jane Austen",
       isRented: false,
+      rating: 4,
       coverImage: "https://images.unsplash.com/photo-1495640452828-3df6795cf69b?auto=format&fit=crop&q=80&w=800"
     },
     {
@@ -135,6 +144,7 @@ export function BookProvider({ children }: { children: ReactNode }) {
       ownerId: "4",
       ownerName: "David Wilson",
       isRented: false,
+      rating: 5,
       coverImage: "https://images.unsplash.com/photo-1621351183012-9e3bf5096bdb?auto=format&fit=crop&q=80&w=800"
     },
     {
@@ -147,6 +157,7 @@ export function BookProvider({ children }: { children: ReactNode }) {
       ownerId: "2",
       ownerName: "John Smith",
       isRented: true,
+      rating: 4,
       coverImage: "https://images.unsplash.com/photo-1476275466078-4007374efbbe?auto=format&fit=crop&q=80&w=800"
     },
     {
@@ -159,6 +170,7 @@ export function BookProvider({ children }: { children: ReactNode }) {
       ownerId: "3",
       ownerName: "Mary Johnson",
       isRented: false,
+      rating: 3,
       coverImage: "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&q=80&w=800"
     },
     {
@@ -171,6 +183,7 @@ export function BookProvider({ children }: { children: ReactNode }) {
       ownerId: "5",
       ownerName: "Sarah Brown",
       isRented: false,
+      rating: 4,
       coverImage: "https://images.unsplash.com/photo-1610882648335-ced8fc8fa6b9?auto=format&fit=crop&q=80&w=800"
     },
     {
@@ -183,6 +196,7 @@ export function BookProvider({ children }: { children: ReactNode }) {
       ownerId: "1",
       ownerName: "Jane Austen",
       isRented: false,
+      rating: 5,
       coverImage: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=800"
     },
     {
@@ -195,6 +209,7 @@ export function BookProvider({ children }: { children: ReactNode }) {
       ownerId: "2",
       ownerName: "John Smith",
       isRented: true,
+      rating: 3,
       coverImage: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=800"
     },
     {
@@ -207,6 +222,7 @@ export function BookProvider({ children }: { children: ReactNode }) {
       ownerId: "5",
       ownerName: "Sarah Brown",
       isRented: false,
+      rating: 4,
       coverImage: "https://images.unsplash.com/photo-1525358041480-f44a72c18868?auto=format&fit=crop&q=80&w=800"
     },
     {
@@ -219,6 +235,7 @@ export function BookProvider({ children }: { children: ReactNode }) {
       ownerId: "4",
       ownerName: "David Wilson",
       isRented: false,
+      rating: 5,
       coverImage: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&q=80&w=800"
     },
     {
@@ -231,14 +248,15 @@ export function BookProvider({ children }: { children: ReactNode }) {
       ownerId: "3",
       ownerName: "Mary Johnson",
       isRented: true,
+      rating: 4,
       coverImage: "https://images.unsplash.com/photo-1547555999-14e818e09e33?auto=format&fit=crop&q=80&w=800"
     }
   ]);
   
   const { toast } = useToast();
 
-  const addBook = (bookData: Omit<Book, "id" | "isRented">) => {
-    const newBook = { ...bookData, id: uuidv4(), isRented: false };
+  const addBook = (bookData: Omit<Book, "id" | "isRented" | "rating">) => {
+    const newBook = { ...bookData, id: uuidv4(), isRented: false, rating: 0 };
     setBooks([...books, newBook]);
     
     toast({
@@ -288,6 +306,22 @@ export function BookProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateBookRating = (bookId: string, rating: number) => {
+    setBooks(
+      books.map((book) =>
+        book.id === bookId ? { ...book, rating } : book
+      )
+    );
+    
+    const book = books.find((b) => b.id === bookId);
+    if (book) {
+      toast({
+        title: "Rating Updated",
+        description: `You've rated "${book.title}" ${rating} out of 5 stars`,
+      });
+    }
+  };
+
   const filteredBooks = (query: string, category: string) => {
     return books.filter((book) => {
       const matchesQuery =
@@ -312,6 +346,7 @@ export function BookProvider({ children }: { children: ReactNode }) {
         editBook,
         deleteBook,
         toggleRentStatus,
+        updateBookRating,
         filteredBooks,
       }}
     >

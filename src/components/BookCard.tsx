@@ -5,7 +5,7 @@ import { useBooks } from "@/contexts/BookContext";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Mail, Phone, BookText, Pencil, Trash2 } from "lucide-react";
+import { MapPin, Mail, Phone, BookText, Pencil, Trash2, Star, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import EditBookDialog from "./EditBookDialog";
 import { 
@@ -19,6 +19,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { toast } from "@/components/ui/use-toast";
 
 interface BookCardProps {
   book: Book;
@@ -26,8 +34,9 @@ interface BookCardProps {
 
 const BookCard = ({ book }: BookCardProps) => {
   const { currentUser } = useAuth();
-  const { toggleRentStatus, deleteBook } = useBooks();
+  const { toggleRentStatus, deleteBook, updateBookRating } = useBooks();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   
   const isOwner = currentUser?.id === book.ownerId;
   const contactInfo = book.contact.includes("@") ? (
@@ -36,10 +45,26 @@ const BookCard = ({ book }: BookCardProps) => {
     <Phone className="h-4 w-4" />
   );
 
+  const handleQuickContact = () => {
+    if (book.contact.includes("@")) {
+      window.location.href = `mailto:${book.contact}?subject=Regarding your book: ${book.title}`;
+    } else {
+      window.location.href = `tel:${book.contact}`;
+    }
+    toast({
+      title: "Contact Information",
+      description: `Contacting ${book.ownerName} regarding "${book.title}"`,
+    });
+  };
+
+  const handleRatingChange = (newRating: number) => {
+    updateBookRating(book.id, newRating);
+  };
+
   return (
     <>
       <Card className="overflow-hidden transition-all hover:shadow-md">
-        <div className="relative h-48">
+        <div className="relative h-48 cursor-pointer" onClick={() => setIsPreviewOpen(true)}>
           <div 
             className="absolute inset-0 bg-cover bg-center" 
             style={{ 
@@ -65,6 +90,11 @@ const BookCard = ({ book }: BookCardProps) => {
             <h3 className="text-white font-semibold truncate">{book.title}</h3>
             <p className="text-white/80 text-sm">{book.author}</p>
           </div>
+          <div className="absolute top-2 left-2">
+            <Badge variant="outline" className="bg-white/80 backdrop-blur-sm">
+              <ExternalLink className="h-3 w-3 mr-1" /> Preview
+            </Badge>
+          </div>
         </div>
         
         <CardContent className="p-4 space-y-3">
@@ -85,6 +115,31 @@ const BookCard = ({ book }: BookCardProps) => {
           <div className="flex items-center text-sm text-muted-foreground">
             {contactInfo}
             <span className="ml-1">{book.contact}</span>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="ml-1 h-6 w-6" 
+              onClick={handleQuickContact}
+              title={`Quick contact ${book.ownerName}`}
+            >
+              <ExternalLink className="h-3 w-3" />
+            </Button>
+          </div>
+          
+          {/* Rating System */}
+          <div className="flex items-center">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star
+                key={star}
+                className={`h-4 w-4 cursor-pointer ${
+                  (book.rating || 0) >= star ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground"
+                }`}
+                onClick={() => !isOwner && handleRatingChange(star)}
+              />
+            ))}
+            <span className="ml-2 text-xs text-muted-foreground">
+              {book.rating ? `${book.rating}/5` : "No ratings"}
+            </span>
           </div>
         </CardContent>
         
@@ -139,6 +194,16 @@ const BookCard = ({ book }: BookCardProps) => {
               </Button>
             </>
           )}
+          
+          {!isOwner && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleQuickContact}
+            >
+              Contact Owner
+            </Button>
+          )}
         </CardFooter>
       </Card>
       
@@ -149,6 +214,28 @@ const BookCard = ({ book }: BookCardProps) => {
           onClose={() => setIsEditDialogOpen(false)}
         />
       )}
+
+      {/* Book Cover Preview Dialog */}
+      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{book.title} by {book.author}</DialogTitle>
+          </DialogHeader>
+          <div className="flex justify-center p-4">
+            {book.coverImage ? (
+              <img 
+                src={book.coverImage}
+                alt={`${book.title} cover`}
+                className="max-h-[60vh] object-contain rounded-md shadow-md"
+              />
+            ) : (
+              <div className="book-cover-gradient w-full h-[60vh] flex items-center justify-center rounded-md shadow-md">
+                <BookText className="h-20 w-20 text-primary/50" />
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
